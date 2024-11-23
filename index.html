@@ -41,23 +41,30 @@
   <header>Каталог Веллвет</header>
   
   <div class="catalog">
-    <!-- Карточка товара -->
+    <!-- Карточка товара Бонхарен -->
     <div class="card">
       <img src="https://via.placeholder.com/200x150.svg?text=Бонхарен" alt="Бонхарен">
       <h3>Бонхарен</h3>
       <p>Гиалуроновая кислота для суставов</p>
-      <p><b>4400 руб.</b></p>
-      <button onclick="addToCart('Бонхарен', 4400)">Добавить в заказ</button>
+      <p><b id="bonharen-price">4400 руб.</b></p>
+      <input type="number" id="bonharen-quantity" value="1" min="1" onchange="updateBonharenPrice()">
+      <button onclick="addToCart('Бонхарен', 4400, document.getElementById('bonharen-quantity').value)">Добавить в заказ</button>
     </div>
     
+    <!-- Карточка товара Цитопоинт -->
     <div class="card">
       <img src="https://via.placeholder.com/200x150.svg?text=Цитопоинт" alt="Цитопоинт">
       <h3>Цитопоинт</h3>
       <p>Средство от дерматитов у собак</p>
-      <p><b>8900 руб.</b></p>
-      <button onclick="addToCart('Цитопоинт', 8900)">Добавить в заказ</button>
+      <p><b id="cytopoint-price">8900 руб.</b></p>
+      <select id="cytopoint-dosage" onchange="updateCytopointPrice()">
+        <option value="8900">10мг/мл - 8900 руб.</option>
+        <option value="11900">20мг/мл - 11900 руб.</option>
+        <option value="15900">30мг/мл - 15900 руб.</option>
+        <option value="18900">40мг/мл - 18900 руб.</option>
+      </select>
+      <button onclick="addToCart('Цитопоинт', parseInt(document.getElementById('cytopoint-dosage').value), 1)">Добавить в заказ</button>
     </div>
-    <!-- Добавить другие товары с иконками -->
   </div>
 
   <div class="cart">
@@ -77,10 +84,25 @@
 
   <script>
     let cart = [];
-    function addToCart(product, price) {
-      cart.push({ product, price });
+
+    function updateBonharenPrice() {
+      const quantity = document.getElementById('bonharen-quantity').value;
+      const price = quantity > 6 ? 4000 : 4400;  // скидка при заказе более 6 единиц
+      document.getElementById('bonharen-price').textContent = `${price} руб.`;
+    }
+
+    function updateCytopointPrice() {
+      const selectedDosage = document.getElementById('cytopoint-dosage').value;
+      document.getElementById('cytopoint-price').textContent = `${selectedDosage} руб.`;
+    }
+
+    function addToCart(product, price, quantity) {
+      for (let i = 0; i < quantity; i++) {
+        cart.push({ product, price });
+      }
       updateCart();
     }
+
     function updateCart() {
       const cartItems = document.getElementById('cart-items');
       const totalPrice = document.getElementById('total-price');
@@ -92,6 +114,7 @@
       });
       totalPrice.textContent = total;
     }
+
     function submitOrder() {
       const name = document.getElementById('customer-name').value;
       const phone = document.getElementById('customer-phone').value;
