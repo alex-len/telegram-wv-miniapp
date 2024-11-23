@@ -35,6 +35,8 @@
     .order-form input { width: 100%; padding: 10px; margin: 10px 0; }
     .order-form button { width: 100%; background: #28a745; color: #fff; border: none; padding: 10px; cursor: pointer; }
     .order-form button:hover { background: #218838; }
+    .cart button { background: #dc3545; color: #fff; border: none; padding: 10px; cursor: pointer; }
+    .cart button:hover { background: #c82333; }
   </style>
 </head>
 <body>
@@ -48,7 +50,7 @@
       <p>Гиалуроновая кислота для суставов</p>
       <p><b id="bonharen-price">4400 руб.</b></p>
       <input type="number" id="bonharen-quantity" value="1" min="1" onchange="updateBonharenPrice()">
-      <button onclick="addToCart('Бонхарен', 4400, document.getElementById('bonharen-quantity').value)">Добавить в заказ</button>
+      <button onclick="addToCart('Бонхарен', getBonharenPrice(), document.getElementById('bonharen-quantity').value)">Добавить в заказ</button>
     </div>
     
     <!-- Карточка товара Цитопоинт -->
@@ -63,7 +65,7 @@
         <option value="15900">30мг/мл - 15900 руб.</option>
         <option value="18900">40мг/мл - 18900 руб.</option>
       </select>
-      <button onclick="addToCart('Цитопоинт', parseInt(document.getElementById('cytopoint-dosage').value), 1)">Добавить в заказ</button>
+      <button onclick="addToCart('Цитопоинт', getCytopointPrice(), 1)">Добавить в заказ</button>
     </div>
   </div>
 
@@ -71,6 +73,7 @@
     <h3>Корзина</h3>
     <div id="cart-items"></div>
     <div class="cart-summary">Итого: <span id="total-price">0</span> руб.</div>
+    <button onclick="clearCart()">Очистить корзину</button>
   </div>
 
   <div class="order-form">
@@ -96,10 +99,24 @@
       document.getElementById('cytopoint-price').textContent = `${selectedDosage} руб.`;
     }
 
+    function getBonharenPrice() {
+      const quantity = document.getElementById('bonharen-quantity').value;
+      return quantity > 6 ? 4000 : 4400;  // возвращаем цену с учетом скидки
+    }
+
+    function getCytopointPrice() {
+      return parseInt(document.getElementById('cytopoint-dosage').value);  // возвращаем цену дозировки
+    }
+
     function addToCart(product, price, quantity) {
-      for (let i = 0; i < quantity; i++) {
-        cart.push({ product, price });
+      const existingProduct = cart.find(item => item.product === product && item.dosage === price);
+      
+      if (existingProduct) {
+        existingProduct.quantity += quantity;  // увеличиваем количество товара в корзине
+      } else {
+        cart.push({ product, price, quantity });
       }
+
       updateCart();
     }
 
@@ -108,11 +125,18 @@
       const totalPrice = document.getElementById('total-price');
       cartItems.innerHTML = '';
       let total = 0;
+      
       cart.forEach(item => {
-        cartItems.innerHTML += `<div class="cart-item">${item.product} - ${item.price} руб.</div>`;
-        total += item.price;
+        cartItems.innerHTML += `<div class="cart-item">${item.product} (${item.quantity} шт.) - ${item.price * item.quantity} руб.</div>`;
+        total += item.price * item.quantity;
       });
+      
       totalPrice.textContent = total;
+    }
+
+    function clearCart() {
+      cart = [];  // очищаем корзину
+      updateCart();
     }
 
     function submitOrder() {
@@ -122,7 +146,7 @@
         alert('Заполните все поля!');
         return;
       }
-      const orderDetails = cart.map(item => `${item.product} (${item.price} руб.)`).join(', ');
+      const orderDetails = cart.map(item => `${item.product} (${item.quantity} шт.) - ${item.price * item.quantity} руб.`).join(', ');
       const order = `Имя: ${name}\nТелефон: ${phone}\nЗаказ: ${orderDetails}`;
       alert(`Ваш заказ:\n${order}`);
       cart = [];
