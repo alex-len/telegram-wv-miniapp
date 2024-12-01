@@ -256,7 +256,6 @@ function sendOrderToBot() {
 
         if (Telegram.WebApp.isAvailable) {
             Telegram.WebApp.sendData(orderJSON);
-            Telegram.WebApp.close();
         } else {
             console.error('Telegram.WebApp не доступен');
             alert('Ошибка отправки заказа. Telegram.WebApp не доступен');
