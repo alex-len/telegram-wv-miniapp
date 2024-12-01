@@ -248,6 +248,8 @@ function sendOrderToBot() {
 
     const orderJSON = JSON.stringify(orderData); // Преобразуем объект заказа в строку JSON
     Telegram.WebApp.sendData(orderJSON);  // Отправляем данные обратно в бота
+    // Закрытие WebApp
+    Telegram.WebApp.close();
 }
 
 function adjustSpacer() {
